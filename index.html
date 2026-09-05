@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelimelik Türkçe Yardımcısı</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#087e9e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kelime Yrd.">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="brand">KELİME</div>
+      <div class="brand-sub">YARDIMCISI</div>
+    </div>
+    <div class="topbar-info">
+      <div class="status" id="dictStatus">Sözlük yükleniyor…</div>
+      <div class="tip">Tahtayı sen doldur · Elindeki harflerle en iyi hamleyi bul</div>
+    </div>
+  </header>
+
+  <div class="games-bar">
+    <div class="games-bar-label">OYUNLAR</div>
+    <div id="gamesList" class="games-list"></div>
+    <button id="newGameBtn" class="new-game-btn">+ Yeni Oyun</button>
+  </div>
+
+  <main class="layout">
+    <section class="game-panel">
+      <div class="board-frame">
+        <div id="board" class="board" aria-label="15x15 Kelimelik tahtası"></div>
+      </div>
+
+      <div class="game-status">
+        <div class="status-box"><span>TAHTA</span><b id="boardCount">0</b></div>
+        <div class="status-box"><span>EL</span><b id="rackCount">0/7</b></div>
+        <div class="status-box"><span>SONUÇ</span><b id="resultCount">0</b></div>
+      </div>
+
+      <div class="rack-strip">
+        <div id="rackTiles" class="rack-tiles"></div>
+      </div>
+
+      <div class="board-tools">
+        <button id="clearBoard" class="tool-btn">Tahtayı Temizle</button>
+        <button id="loadExample" class="tool-btn">Örnek Tahta</button>
+        <button id="placeStar2" class="tool-btn star-btn">★2 Yerleştir</button>
+        <button id="placeStar3" class="tool-btn star3-btn">★★★ Yerleştir</button>
+        <button id="removeStars" class="tool-btn">Yıldızları Sil</button>
+      </div>
+
+      <div id="starMode" class="star-mode" hidden></div>
+      <div class="board-help">
+        Kareye tıkla ve klavyeden harfi yaz. <b>Delete / Backspace</b> siler.<br>
+        <b>★2</b> ve <b>★★★</b> özel karelerinin yeri her oyunda değişebildiği için yukarıdaki düğmelerle istediğin hücreye manuel yerleştirebilirsin.
+        H²/H³ = harf puanı, K²/K³ = kelime puanı.
+      </div>
+    </section>
+
+    <aside class="side-panel">
+      <section class="card rack-card">
+        <div class="card-title">ELİMDEKİ HARFLER</div>
+        <input id="rack" class="rack-input" maxlength="7" placeholder="Örn: SADYÜTİ veya AEKLMR*">
+        <div class="rack-note">7 taşa kadar · <b>*</b> = joker</div>
+      </section>
+
+      <section class="card solve-card">
+        <div class="card-title">HAMLE ARAMA</div>
+        <label class="check"><input type="checkbox" id="allowAllWords" checked> Sözlükteki tüm uygun kelimeleri tara</label>
+        <label class="check"><input type="checkbox" id="onlyBingo"> Sadece bingo (7 taş) hamlelerini göster</label>
+        <label class="check"><input type="checkbox" id="hideRisky"> Yüksek riskli hamleleri gizle (K³ / ★★★ açanlar)</label>
+        <label class="limit-label">Gösterilecek hamle
+          <input id="limit" type="number" min="1" max="100" value="20">
+        </label>
+        <button id="solve" class="solve-btn">EN İYİ HAMLELERİ BUL</button>
+      </section>
+
+      <section class="card result-card">
+        <div class="card-title result-heading">ÖNERİLER <span id="resultCountLabel">0 hamle</span></div>
+        <div id="results" class="results">
+          <div class="empty">Elini girip hamle aramayı başlat.</div>
+        </div>
+      </section>
+
+      <section class="card dictionary-card">
+        <div class="card-title">SÖZLÜK</div>
+        <div id="dictInfo" class="dict-info"></div>
+        <div class="dict-actions">
+          <input type="file" id="dictFile" accept=".txt,.csv">
+          <button id="reloadDict" class="tool-btn">Yenile</button>
+        </div>
+      </section>
+    </aside>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
