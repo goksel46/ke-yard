@@ -276,6 +276,11 @@ function selectCell(r,c){
   clearResults(false);
   renderBoard();
   persistActiveGame();
+  // Dokunmatik cihazda ekran klavyesini açmak için: bu odaklama, kullanıcının
+  // dokunma hareketiyle aynı anda gerçekleştiği için tarayıcı klavyeyi
+  // göstermeye izin verir (masaüstünde görünmez, zararsızdır).
+  mobileCaptureEl.value = "";
+  mobileCaptureEl.focus({preventScroll:true});
 }
 
 function cellAt(r,c){ return boardEl.children[r*SIZE+c]; }
@@ -370,30 +375,61 @@ function updateStarMode(){
   document.getElementById("placeStar3").classList.toggle("active", starMode === "star3");
 }
 
-function setCellFromKey(key){
+function placeLetterAtSelected(k){
   const {r,c} = selected;
+  board[r][c] = k;
+  if(c<SIZE-1) selected.c++;
+  clearResults(false);
+  renderBoard();
+  persistActiveGame();
+}
+
+function deleteLetterAtSelected(){
+  const {r,c} = selected;
+  board[r][c] = null;
+  if(c>0) selected.c--;
+  clearResults(false);
+  renderBoard();
+  persistActiveGame();
+}
+
+function setCellFromKey(key){
   if(key === "Backspace" || key === "Delete"){
-    board[r][c] = null;
-    if(c>0) selected.c--;
-    clearResults(false);
-    renderBoard();
-    persistActiveGame();
+    deleteLetterAtSelected();
     return;
   }
-
   const k = trUpper(key);
   if(/^[A-ZÇĞİÖŞÜI]$/u.test(k)){
-    board[r][c] = k;
-    if(c<SIZE-1) selected.c++;
-    clearResults(false);
-    renderBoard();
-    persistActiveGame();
+    placeLetterAtSelected(k);
   }
 }
 
 document.addEventListener("keydown", e => {
   if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
   setCellFromKey(e.key);
+});
+
+// MOBİL KLAVYE DESTEĞİ: Dokunmatik cihazlarda, bir hücreye dokunmak hiçbir
+// gerçek <input> alanını odaklamadığı için ekran klavyesi hiç açılmıyordu.
+// Bu görünmez input, hücre seçildiğinde odaklanarak klavyeyi açar; girilen
+// her karakter aynı harf/silme mantığını (yukarıdaki fonksiyonlar) kullanır.
+const mobileCaptureEl = document.getElementById("mobileCapture");
+
+mobileCaptureEl.addEventListener("input", () => {
+  const ch = mobileCaptureEl.value.slice(-1);
+  mobileCaptureEl.value = "";
+  if(!ch) return;
+  const k = trUpper(ch);
+  if(/^[A-ZÇĞİÖŞÜI]$/u.test(k)){
+    placeLetterAtSelected(k);
+  }
+});
+
+mobileCaptureEl.addEventListener("keydown", e => {
+  if(e.key === "Backspace" || e.key === "Delete"){
+    e.preventDefault();
+    deleteLetterAtSelected();
+  }
 });
 
 rackEl.addEventListener("input", () => {
@@ -959,15 +995,35 @@ function setDictionary(text,source){
 
 async function loadDictionary(){
   statusEl.textContent="Sözlük yükleniyor…";
+  infoEl.textContent="Yerel sözlük dosyası kontrol ediliyor…";
+
+  // 1) Önce sayfayla birlikte gelen yerel dictionary.txt'yi dene. Bu dosya
+  //    hem GitHub Pages'e hem de APK'nın içine gömülü olarak konursa,
+  //    uygulama internete hiç ihtiyaç duymadan açılabilir.
+  try{
+    const res=await fetch("dictionary.txt",{cache:"no-store"});
+    if(res.ok){
+      const text=await res.text();
+      if(text && text.length>100){
+        setDictionary(text,"Yerel gömülü sözlük (dictionary.txt)");
+        return;
+      }
+    }
+  }catch(err){
+    console.warn("Yerel sözlük bulunamadı, internetten denenecek:", err);
+  }
+
+  // 2) Yerel dosya yoksa internetten indirmeyi dene.
+  statusEl.textContent="Sözlük yükleniyor…";
   infoEl.textContent="İnternetten Türkçe kelime listesi getiriliyor.";
   try{
     const res=await fetch(DICT_URL,{cache:"no-store"});
     if(!res.ok) throw new Error("HTTP "+res.status);
     const text=await res.text();
-    setDictionary(text,"Kelimelik Türkçe kelime listesi");
+    setDictionary(text,"Kelimelik Türkçe kelime listesi (internet)");
   }catch(err){
     statusEl.textContent="Sözlük yüklenemedi";
-    infoEl.innerHTML='İnternet sözlüğü alınamadı. <b>.txt</b> sözlük dosyası seçerek devam edebilirsin.';
+    infoEl.innerHTML='Yerel ya da internet sözlüğü bulunamadı. <b>.txt</b> sözlük dosyası seçerek devam edebilirsin.';
     console.warn(err);
   }
 }

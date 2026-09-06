@@ -4,7 +4,7 @@
 // geldiği için ayrıca önbelleklenmez; yoksa sayfadaki .txt yükleme
 // alanı zaten yedek olarak kullanılabiliyor.
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v3";
 const CACHE_NAME = "kelime-yardimcisi-" + CACHE_VERSION;
 
 // self.registration.scope, bu dosyanın hangi klasörden servis edildiğini
@@ -16,6 +16,7 @@ const APP_SHELL = [
   "style.css",
   "app.js",
   "manifest.json",
+  "dictionary.txt",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/icon-maskable-512.png"
