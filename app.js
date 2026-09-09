@@ -276,11 +276,24 @@ function selectCell(r,c){
   clearResults(false);
   renderBoard();
   persistActiveGame();
-  // Dokunmatik cihazda ekran klavyesini açmak için: bu odaklama, kullanıcının
-  // dokunma hareketiyle aynı anda gerçekleştiği için tarayıcı klavyeyi
-  // göstermeye izin verir (masaüstünde görünmez, zararsızdır).
+  // Dokunmatik cihazda ekran klavyesini açmak için: input'u SEÇİLİ HÜCRENİN
+  // TAM ÜZERİNE konumlandırıp odaklıyoruz. Bu sayede tarayıcının "odaklanan
+  // öğeyi görünür tut" davranışı zaten görünürde olan bir noktayı hedefler
+  // ve sayfa kaydırmaz (daha önce sabit köşede durduğunda her tuşta sayfayı
+  // aşağı kaydırıyordu).
+  positionMobileCapture(r,c);
   mobileCaptureEl.value = "";
   mobileCaptureEl.focus({preventScroll:true});
+}
+
+function positionMobileCapture(r,c){
+  const cellEl = cellAt(r,c);
+  if(!cellEl) return;
+  const rect = cellEl.getBoundingClientRect();
+  mobileCaptureEl.style.top = (window.scrollY + rect.top) + "px";
+  mobileCaptureEl.style.left = (window.scrollX + rect.left) + "px";
+  mobileCaptureEl.style.width = rect.width + "px";
+  mobileCaptureEl.style.height = rect.height + "px";
 }
 
 function cellAt(r,c){ return boardEl.children[r*SIZE+c]; }
@@ -382,6 +395,7 @@ function placeLetterAtSelected(k){
   clearResults(false);
   renderBoard();
   persistActiveGame();
+  positionMobileCapture(selected.r, selected.c);
 }
 
 function deleteLetterAtSelected(){
@@ -390,6 +404,7 @@ function deleteLetterAtSelected(){
   if(c>0) selected.c--;
   clearResults(false);
   renderBoard();
+  positionMobileCapture(selected.r, selected.c);
   persistActiveGame();
 }
 
@@ -981,16 +996,152 @@ document.getElementById("dictFile").addEventListener("change",async e=>{
 });
 document.getElementById("reloadDict").addEventListener("click",()=>loadDictionary());
 
+// ---------------------------------------------------------------------
+// SÖZLÜK ÖZELLEŞTİRME (kelime ekle / sil)
+// Oyunda kabul görmeyen ama sözlükte olan kelimeleri çıkarabilir, kabul
+// gördüğü halde sözlükte olmayan kelimeleri ekleyebilirsin. Bu tercihler
+// localStorage'da saklanır ve hangi sözlük dosyası yüklenirse yüklensin
+// (yerel/internet/manuel) otomatik uygulanır.
+// ---------------------------------------------------------------------
+const CUSTOM_DICT_KEY = "kelimelikYardimcisiSozlukOzellestirme_v1";
+let baseDictionary = new Set();
+let customAdditions = new Set();
+let customRemovals = new Set();
+
+function loadCustomDictChanges(){
+  try{
+    const raw = localStorage.getItem(CUSTOM_DICT_KEY);
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    customAdditions = new Set(parsed.added || []);
+    customRemovals = new Set(parsed.removed || []);
+  }catch(e){
+    console.warn("Sözlük özelleştirmeleri okunamadı:", e);
+  }
+}
+
+function saveCustomDictChanges(){
+  try{
+    localStorage.setItem(CUSTOM_DICT_KEY, JSON.stringify({
+      added: Array.from(customAdditions),
+      removed: Array.from(customRemovals)
+    }));
+  }catch(e){
+    console.warn("Sözlük özelleştirmeleri kaydedilemedi:", e);
+  }
+}
+
+function recomputeDictionary(){
+  const set = new Set(baseDictionary);
+  for(const w of customAdditions) set.add(w);
+  for(const w of customRemovals) set.delete(w);
+  dictionary = set;
+  dictionaryWords = Array.from(set);
+}
+
+function updateDictInfo(source){
+  if(source) lastDictSource = source;
+  statusEl.textContent = `Sözlük hazır: ${dictionary.size.toLocaleString("tr-TR")} kelime`;
+  const extra = [];
+  if(customAdditions.size) extra.push(`${customAdditions.size} eklendi`);
+  if(customRemovals.size) extra.push(`${customRemovals.size} çıkarıldı`);
+  const extraTxt = extra.length ? ` (${extra.join(", ")})` : "";
+  infoEl.textContent = `Kaynak: ${lastDictSource || "-"}. 2–15 harf aralığı kullanılıyor.${extraTxt}`;
+}
+
+let lastDictSource = "";
+
+const customWordInput = document.getElementById("customWordInput");
+const customWordListEl = document.getElementById("customWordList");
+
+function renderCustomWordList(){
+  if(!customWordListEl) return;
+  customWordListEl.innerHTML = "";
+  if(!customAdditions.size && !customRemovals.size){
+    customWordListEl.innerHTML = '<div class="custom-word-empty">Henüz özelleştirme yok.</div>';
+    return;
+  }
+  const makeChip = (word, type, onUndo) => {
+    const chip = document.createElement("span");
+    chip.className = "word-chip " + type;
+    chip.textContent = word;
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "word-chip-x";
+    x.textContent = "✕";
+    x.title = "Geri al";
+    x.addEventListener("click", onUndo);
+    chip.appendChild(x);
+    return chip;
+  };
+  for(const w of Array.from(customAdditions).sort((a,b)=>a.localeCompare(b,"tr"))){
+    customWordListEl.appendChild(makeChip(w, "added", () => undoAddWord(w)));
+  }
+  for(const w of Array.from(customRemovals).sort((a,b)=>a.localeCompare(b,"tr"))){
+    customWordListEl.appendChild(makeChip(w, "removed", () => undoRemoveWord(w)));
+  }
+}
+
+function afterDictChange(){
+  recomputeDictionary();
+  saveCustomDictChanges();
+  updateDictInfo();
+  renderCustomWordList();
+  clearResults(false);
+}
+
+function addWord(){
+  const w = normalizeWord(customWordInput.value);
+  if(!w || !isLetterWord(w) || w.length<2 || w.length>15){
+    alert("Geçerli bir kelime yaz (2-15 harf, sadece Türkçe harfler).");
+    return;
+  }
+  customRemovals.delete(w);
+  customAdditions.add(w);
+  customWordInput.value = "";
+  afterDictChange();
+}
+
+function removeWord(){
+  const w = normalizeWord(customWordInput.value);
+  if(!w || !isLetterWord(w) || w.length<2 || w.length>15){
+    alert("Geçerli bir kelime yaz (2-15 harf, sadece Türkçe harfler).");
+    return;
+  }
+  customAdditions.delete(w);
+  customRemovals.add(w);
+  customWordInput.value = "";
+  afterDictChange();
+}
+
+function undoAddWord(w){
+  customAdditions.delete(w);
+  afterDictChange();
+}
+
+function undoRemoveWord(w){
+  customRemovals.delete(w);
+  afterDictChange();
+}
+
+document.getElementById("addWordBtn").addEventListener("click", addWord);
+document.getElementById("removeWordBtn").addEventListener("click", removeWord);
+customWordInput.addEventListener("keydown", e => {
+  if(e.key === "Enter"){ e.preventDefault(); addWord(); }
+});
+
+loadCustomDictChanges();
+
 function setDictionary(text,source){
   const set=new Set();
   for(const raw of text.split(/\r?\n/)){
     const w=normalizeWord(raw.split(/[;,]/)[0]);
     if(w.length>=2 && w.length<=15 && isLetterWord(w)) set.add(w);
   }
-  dictionary=set;
-  dictionaryWords=Array.from(set);
-  statusEl.textContent=`Sözlük hazır: ${dictionary.size.toLocaleString("tr-TR")} kelime`;
-  infoEl.textContent=`Kaynak: ${source}. 2–15 harf aralığı kullanılıyor.`;
+  baseDictionary = set;
+  recomputeDictionary();
+  updateDictInfo(source);
+  renderCustomWordList();
 }
 
 async function loadDictionary(){

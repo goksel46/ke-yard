@@ -97,6 +97,17 @@
           <input type="file" id="dictFile" accept=".txt,.csv">
           <button id="reloadDict" class="tool-btn">Yenile</button>
         </div>
+
+        <div class="dict-custom">
+          <div class="dict-custom-title">Kelime Ekle / Sil</div>
+          <div class="dict-custom-note">Oyunda kabul görmeyen kelimeleri sil ki önerilmesin; kabul gördüğü halde listede olmayanları ekle.</div>
+          <div class="dict-custom-row">
+            <input id="customWordInput" class="custom-word-input" maxlength="15" placeholder="Kelime yaz…">
+            <button id="addWordBtn" class="tool-btn add-word-btn" title="Sözlüğe ekle">+ Ekle</button>
+            <button id="removeWordBtn" class="tool-btn remove-word-btn" title="Sözlükten çıkar">− Sil</button>
+          </div>
+          <div id="customWordList" class="custom-word-list"></div>
+        </div>
       </section>
     </aside>
   </main>

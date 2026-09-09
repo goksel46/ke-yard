@@ -38,6 +38,22 @@ Tahta, verilen Kelimelik ekran görüntüsündeki 15x15 bonus düzeni kullanır:
 
 Not: Sözlük tüm oyunlar için ortaktır; oyun bazlı saklanan tek şeyler tahta, el, yıldız konumları ve seçili hücredir.
 
+## Sözlük Kelime Ekle / Sil
+
+Gerçek oyunda kabul görmeyen ama uygulamanın önerdiği kelimeler olabilir
+(ya da tam tersi). Sağ alttaki **SÖZLÜK** kartındaki "Kelime Ekle / Sil"
+bölümünden:
+
+- Bir kelime yazıp **+ Ekle** dersen, sözlükte olmasa bile artık önerilere
+  dahil edilir.
+- Bir kelime yazıp **− Sil** dersen, sözlükte olsa bile artık hiç önerilmez.
+- Aşağıdaki listede eklediğin (yeşil) ve sildiğin (kırmızı, üstü çizili)
+  kelimeleri görürsün; üzerlerindeki **✕** ile geri alabilirsin.
+
+Bu tercihler cihazında/tarayıcında kalıcı olarak saklanır ve sözlüğü hangi
+kaynaktan yüklersen yükle (yerel dosya/internet/manuel yükleme) otomatik
+uygulanır.
+
 ## Kullanım
 
 1. Rakibin ve tahtadaki mevcut harfleri tıklayıp/klavyeden girin.

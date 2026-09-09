@@ -1,5 +1,5 @@
 *{box-sizing:border-box}
-.mobile-capture{position:fixed;bottom:0;left:0;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0;pointer-events:none;font-size:16px}
+.mobile-capture{position:absolute;top:0;left:0;width:10px;height:10px;opacity:0;border:0;padding:0;margin:0;pointer-events:none;font-size:16px}
 .cell,.game-chip,.tool-btn,.solve-btn,.apply-btn,.new-game-btn,.game-chip-end{touch-action:manipulation}
 :root{
   --bg:#0a87aa;
@@ -120,6 +120,21 @@ body{background:#0c87aa}
 .dict-info{font-size:11px;color:#728085;line-height:1.5;min-height:34px}
 .dict-actions{display:flex;gap:8px;align-items:center;margin-top:9px}
 .dict-actions input[type=file]{width:100%;font-size:11px}
+.dict-custom{margin-top:13px;padding-top:13px;border-top:1px solid #e2e6e7}
+.dict-custom-title{font-size:11px;font-weight:900;letter-spacing:.4px;color:#3b484d;margin-bottom:5px}
+.dict-custom-note{font-size:10.5px;color:#7b898e;line-height:1.5;margin-bottom:9px}
+.dict-custom-row{display:flex;gap:6px}
+.custom-word-input{flex:1;min-width:0;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:9px 10px;border:1px solid #bac5c9;border-radius:7px;background:#fff;color:#3b484d;outline:none}
+.custom-word-input:focus{border-color:#5caabe;box-shadow:0 0 0 3px rgba(75,168,193,.14)}
+.add-word-btn{border-color:#8fc79c;background:#f2fbf4;color:#237a3d;white-space:nowrap}
+.remove-word-btn{border-color:#e3a3a0;background:#fdf3f2;color:#a3372f;white-space:nowrap}
+.custom-word-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.custom-word-empty{font-size:11px;color:#95a0a3}
+.word-chip{display:flex;align-items:center;gap:5px;padding:5px 6px 5px 10px;border-radius:14px;font-size:11px;font-weight:800;letter-spacing:.2px}
+.word-chip.added{background:#eaf8ee;color:#237a3d;border:1px solid #b9e3c3}
+.word-chip.removed{background:#fbeceb;color:#a3372f;border:1px solid #eebab6;text-decoration:line-through}
+.word-chip-x{border:0;background:rgba(0,0,0,.08);color:inherit;width:16px;height:16px;min-width:16px;border-radius:50%;font-size:9px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.word-chip-x:hover{background:rgba(0,0,0,.18)}
 @media(max-width:920px){
   .layout{grid-template-columns:1fr}
   .topbar{height:auto;min-height:125px}
