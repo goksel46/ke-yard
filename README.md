@@ -61,4 +61,4 @@ uygulanır.
 3. `EN İYİ HAMLELERİ BUL` düğmesine basın.
 4. Sonuç kartlarından birine tıklayarak hamlenin tahtadaki yerleşimini görün.
 
-Sözlük ilk açılışta internetten alınır. İnternet erişimi yoksa sağdaki `.txt` yükleme alanından yerel Türkçe kelime listenizi seçebilirsiniz.
+Sözlük yalnızca proje klasöründeki `dictionary.txt` dosyasından yüklenir; başka hiçbir kaynaktan/internetten indirme yapılmaz. Farklı bir liste kullanmak isterseniz sağdaki `.txt` yükleme alanından kendi dosyanızı seçebilirsiniz.
