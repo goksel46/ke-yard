@@ -3,10 +3,11 @@
 // Böylece telefon/PC'de internet olmasa bile uygulama açılabilir.
 // dictionary.txt özellikle APP_SHELL dışında bırakılmıştır.
 // Böylece sözlük güncellendiğinde eski sözlüğün cache'ten gelmesi engellenir.
+// The single allowed dictionary is packaged beside the application files.
 
 // Bump this value when the app shell changes so Chrome fetches fresh files.
 const CACHE_VERSION = "v5";
-const CACHE_VERSION = "v7";
+const CACHE_VERSION = "v8";
 const CACHE_NAME = "kelime-yardimcisi-" + CACHE_VERSION;
 
 // Service Worker'ın çalıştığı klasörün yolu.
@@ -19,6 +20,7 @@ const APP_SHELL = [
   "index.html",
   "style.css",
   "app.js",
+  "dictionary.txt",
   "manifest.json",
   "icons/icon-192.png",
   "icons/icon-512.png",
@@ -111,6 +113,9 @@ self.addEventListener("fetch", event => {
     // dictionary.txt burada olduğundan:
     // - Güncel sözlük varsa internetten alınır.
     // - İnternet yoksa daha önce cache'lenmiş sürüm kullanılabilir.
+    // Önce internet, hata olursa cache.
+    // dictionary.txt APP_SHELL içinde olduğundan yalnızca üstteki
+    // sabit dosya listesi ve cache kuralı üzerinden sunulur.
     // -----------------------------------------------------
     event.respondWith(
       fetch(req)
