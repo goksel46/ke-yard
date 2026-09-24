@@ -1,7 +1,9 @@
 // DÜZELTİLMİŞ SÜRÜM: eksik yasal hamle adayları + tahta değişince eski önerilerin temizlenmesi
 const SIZE = 15;
 const CENTER = 7;
+// The only word source is dictionary.txt beside index.html.
 const DICT_URL = new URL("dictionary.txt", document.baseURI).toString();
+const DICTIONARY_URL = new URL("./dictionary.txt", document.baseURI).toString();
 
 // Türkçe Kelimelik / Scrabble harf puanları.
 const LETTER_POINTS = {
@@ -3116,6 +3118,7 @@ document
 
 // ---------------------------------------------------------------------
 // YEREL SÖZLÜK DOSYASI
+// SABİT PROJE SÖZLÜĞÜ
 // ---------------------------------------------------------------------
 
 document
@@ -3217,6 +3220,7 @@ async function loadDictionary(){
     const res =
       await fetch(
         DICT_URL,
+        DICTIONARY_URL,
         {
           cache:"no-store"
         }
