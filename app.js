@@ -1,7 +1,7 @@
 // DÜZELTİLMİŞ SÜRÜM: eksik yasal hamle adayları + tahta değişince eski önerilerin temizlenmesi
 const SIZE = 15;
 const CENTER = 7;
-const DICT_URL = "https://raw.githubusercontent.com/kamilmielnik/scrabble-dictionaries/master/turkish/kelimelik.txt";
+const DICT_URL = new URL("dictionary.txt", document.baseURI).toString();
 
 // Türkçe Kelimelik / Scrabble harf puanları.
 const LETTER_POINTS = {
@@ -3210,7 +3210,7 @@ async function loadDictionary(){
     "Sözlük yükleniyor…";
 
   infoEl.textContent =
-    "İnternetten Türkçe kelime listesi getiriliyor.";
+    "Proje klasöründeki dictionary.txt dosyası yükleniyor.";
 
   try{
 
@@ -3235,17 +3235,17 @@ async function loadDictionary(){
 
     setDictionary(
       text,
-      "Kelimelik Türkçe kelime listesi"
+      "Proje içindeki dictionary.txt"
     );
 
   }catch(err){
 
     statusEl.textContent =
-      "Sözlük yüklenemedi";
+      "dictionary.txt yüklenemedi";
 
     infoEl.innerHTML =
-      'İnternet sözlüğü alınamadı. ' +
-      '<b>.txt</b> sözlük dosyası seçerek devam edebilirsin.';
+      'Proje klasöründeki <b>dictionary.txt</b> dosyası okunamadı. ' +
+      'Dosyanın <b>index.html</b> ile aynı klasörde olduğundan emin ol.';
 
     console.warn(err);
   }
