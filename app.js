@@ -57,6 +57,29 @@ const statusEl = document.getElementById("dictStatus");
 const infoEl = document.getElementById("dictInfo");
 const starModeEl = document.getElementById("starMode");
 
+// Mobile browsers only open the on-screen keyboard for a focused input.
+// Keep a tiny, transparent input available for board taps.
+const boardKeyboardInput = document.createElement("input");
+boardKeyboardInput.type = "text";
+boardKeyboardInput.autocomplete = "off";
+boardKeyboardInput.autocapitalize = "characters";
+boardKeyboardInput.spellcheck = false;
+boardKeyboardInput.setAttribute("aria-label", "Tahtaya harf gir");
+boardKeyboardInput.inputMode = "text";
+Object.assign(boardKeyboardInput.style, {
+  position: "fixed",
+  left: "0",
+  bottom: "0",
+  width: "2px",
+  height: "2px",
+  padding: "0",
+  border: "0",
+  opacity: "0.01",
+  fontSize: "16px",
+  zIndex: "-1"
+});
+document.body.appendChild(boardKeyboardInput);
+
 // ---------------------------------------------------------------------
 // ÇOKLU OYUN YÖNETİMİ
 // Her oyun (tahta + el + yıldızlar + seçili hücre) tarayıcının
@@ -494,6 +517,13 @@ function selectCell(r,c){
 
   renderBoard();
   persistActiveGame();
+
+  // Tapping a cell is a user gesture, so mobile Safari/Chrome can open
+  // the native keyboard here. Desktop users keep the normal key handling.
+  if (!starMode && window.matchMedia("(pointer: coarse)").matches) {
+    boardKeyboardInput.value = "";
+    boardKeyboardInput.focus({ preventScroll: true });
+  }
 }
 
 function cellAt(r,c){
@@ -935,6 +965,20 @@ document.addEventListener(
     setCellFromKey(e.key);
   }
 );
+
+boardKeyboardInput.addEventListener("input", () => {
+  const typed = trUpper(boardKeyboardInput.value)
+    .replace(/[^A-ZÇĞİÖŞÜI]/gu, "");
+  boardKeyboardInput.value = "";
+  for (const letter of typed) setCellFromKey(letter);
+});
+
+boardKeyboardInput.addEventListener("keydown", e => {
+  if (e.key === "Backspace" || e.key === "Delete") {
+    e.preventDefault();
+    setCellFromKey(e.key);
+  }
+});
 
 // ---------------------------------------------------------------------
 // EL GİRİŞİ
@@ -3228,4 +3272,5 @@ if("serviceWorker" in navigator){
         );
     }
   );
+}
 }
