@@ -68,13 +68,13 @@ boardKeyboardInput.setAttribute("aria-label", "Tahtaya harf gir");
 boardKeyboardInput.inputMode = "text";
 Object.assign(boardKeyboardInput.style, {
   position: "fixed",
-  left: "0",
-  bottom: "0",
-  width: "2px",
-  height: "2px",
+  left: "1px",
+  top: "50%",
+  width: "1px",
+  height: "24px",
   padding: "0",
   border: "0",
-  opacity: "0.01",
+  opacity: "0.02",
   fontSize: "16px",
   // Keep the control rendered above the page. Some mobile browsers refuse
   // to open the software keyboard for inputs behind the document (z-index < 0).
@@ -471,7 +471,7 @@ function makeBoard(){
       // Focus during the touch gesture itself. iOS and some Android WebViews
       // suppress the keyboard when focus happens after the gesture completes.
       cell.addEventListener("pointerdown", () => {
-        if (window.matchMedia("(pointer: coarse)").matches && !starMode) {
+        if (!starMode) {
           boardKeyboardInput.value = "";
           boardKeyboardInput.focus({ preventScroll: true });
         }
@@ -529,9 +529,9 @@ function selectCell(r,c){
   renderBoard();
   persistActiveGame();
 
-  // Tapping a cell is a user gesture, so mobile Safari/Chrome can open
-  // the native keyboard here. Desktop users keep the normal key handling.
-  if (!starMode && window.matchMedia("(pointer: coarse)").matches) {
+  // Focus directly from the cell tap; do not rely on pointer media queries,
+  // which can report a fine pointer in some mobile Chrome configurations.
+  if (!starMode) {
     boardKeyboardInput.value = "";
     boardKeyboardInput.focus({ preventScroll: true });
   }
@@ -3267,12 +3267,21 @@ loadDictionary();
 // https:// veya http://localhost
 if("serviceWorker" in navigator){
 
+  let reloadingForWorkerUpdate = false;
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!reloadingForWorkerUpdate) {
+      reloadingForWorkerUpdate = true;
+      window.location.reload();
+    }
+  });
+
   window.addEventListener(
     "load",
     () => {
 
       navigator.serviceWorker
-        .register("sw.js")
+        .register("sw.js", { updateViaCache: "none" })
         .catch(
           err =>
             console.warn(
@@ -3283,5 +3292,4 @@ if("serviceWorker" in navigator){
         );
     }
   );
-}
 }
