@@ -6,6 +6,7 @@
 
 // Bump this value when the app shell changes so Chrome fetches fresh files.
 const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v6";
 const CACHE_NAME = "kelime-yardimcisi-" + CACHE_VERSION;
 
 // Service Worker'ın çalıştığı klasörün yolu.
