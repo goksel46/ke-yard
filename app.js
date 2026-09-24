@@ -1523,19 +1523,24 @@ function blockWord(word){
     blocked.push(normalized);
   }
 
-  /*
-   * Bu andan sonra eski sonuçlar geçersiz.
-   */
-  clearResults(false);
-
   persistActiveGame();
 
-  resultsEl.innerHTML =
-    `<div class="empty">` +
-    `🚫 <b>${normalized}</b> ` +
-    `bu oyun için engellendi. ` +
-    `Yalnızca bu kelime tekrar önerilmeyecek.` +
-    `</div>`;
+  // Remove only this word from the current results, keeping the rest visible.
+  // lastMoves contains the full result set, so showResults can fill the list
+  // with the next best move when the removed word was in the visible top N.
+  const remainingMoves = lastMoves.filter(
+    move => normalizeWord(move.word) !== normalized
+  );
+
+  showResults(remainingMoves);
+
+  if(!remainingMoves.length){
+    resultsEl.innerHTML =
+      `<div class="empty">` +
+      `🚫 <b>${normalized}</b> listeden silindi. ` +
+      `Gösterilecek başka öneri kalmadı.` +
+      `</div>`;
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -2682,7 +2687,7 @@ function showResults(moves){
             class="tool-btn block-word-btn"
             style="margin-left:6px"
           >
-            🚫 KELİMEYİ ENGELLE
+            🚫 KELİMEYİ LİSTEDEN SİL
           </button>
 
         </div>
@@ -2715,9 +2720,9 @@ function showResults(moves){
 
           if(
             confirm(
-              `"${m.word}" kelimesini bu oyun için engellemek istiyor musun?\n\n` +
-              `Yalnızca "${m.word}" kelimesi tekrar önerilmeyecek. ` +
-              `Başka kelimeler bundan etkilenmeyecek.`
+              `"${m.word}" kelimesini öneri listesinden silmek istiyor musun?\n\n` +
+              `Bu oyundaki sonraki aramalarda da gösterilmeyecek. ` +
+              `Diğer kelimeler etkilenmeyecek.`
             )
           ){
 
