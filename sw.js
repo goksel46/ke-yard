@@ -6,7 +6,6 @@
 // The single allowed dictionary is packaged beside the application files.
 
 // Bump this value when the app shell changes so Chrome fetches fresh files.
-const CACHE_VERSION = "v5";
 const CACHE_VERSION = "v8";
 const CACHE_NAME = "kelime-yardimcisi-" + CACHE_VERSION;
 

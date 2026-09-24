@@ -3,7 +3,6 @@ const SIZE = 15;
 const CENTER = 7;
 // The only word source is dictionary.txt beside index.html.
 const DICT_URL = new URL("dictionary.txt", document.baseURI).toString();
-const DICTIONARY_URL = new URL("./dictionary.txt", document.baseURI).toString();
 
 // Türkçe Kelimelik / Scrabble harf puanları.
 const LETTER_POINTS = {
@@ -3220,7 +3219,6 @@ async function loadDictionary(){
     const res =
       await fetch(
         DICT_URL,
-        DICTIONARY_URL,
         {
           cache:"no-store"
         }
