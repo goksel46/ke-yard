@@ -4,7 +4,8 @@
 // dictionary.txt özellikle APP_SHELL dışında bırakılmıştır.
 // Böylece sözlük güncellendiğinde eski sözlüğün cache'ten gelmesi engellenir.
 
-const CACHE_VERSION = "v4";
+// Bump this value when the app shell changes so Chrome fetches fresh files.
+const CACHE_VERSION = "v5";
 const CACHE_NAME = "kelime-yardimcisi-" + CACHE_VERSION;
 
 // Service Worker'ın çalıştığı klasörün yolu.
