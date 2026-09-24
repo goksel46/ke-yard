@@ -76,7 +76,9 @@ Object.assign(boardKeyboardInput.style, {
   border: "0",
   opacity: "0.01",
   fontSize: "16px",
-  zIndex: "-1"
+  // Keep the control rendered above the page. Some mobile browsers refuse
+  // to open the software keyboard for inputs behind the document (z-index < 0).
+  zIndex: "9999"
 });
 document.body.appendChild(boardKeyboardInput);
 
@@ -465,6 +467,15 @@ function makeBoard(){
         "click",
         () => selectCell(r,c)
       );
+
+      // Focus during the touch gesture itself. iOS and some Android WebViews
+      // suppress the keyboard when focus happens after the gesture completes.
+      cell.addEventListener("pointerdown", () => {
+        if (window.matchMedia("(pointer: coarse)").matches && !starMode) {
+          boardKeyboardInput.value = "";
+          boardKeyboardInput.focus({ preventScroll: true });
+        }
+      });
 
       boardEl.appendChild(cell);
     }
