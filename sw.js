@@ -1,8 +1,6 @@
 // Kelimelik Türkçe Yardımcısı - Service Worker
 // Uygulama kabuğunu (HTML/CSS/JS/ikonlar) önbelleğe alır.
 // Böylece telefon/PC'de internet olmasa bile uygulama açılabilir.
-// dictionary.txt özellikle APP_SHELL dışında bırakılmıştır.
-// Böylece sözlük güncellendiğinde eski sözlüğün cache'ten gelmesi engellenir.
 // The single allowed dictionary is packaged beside the application files.
 
 // Bump this value when the app shell changes so Chrome fetches fresh files.
@@ -106,12 +104,6 @@ self.addEventListener("fetch", event => {
 
     // -----------------------------------------------------
     // DİĞER İSTEKLER:
-    // Önce internet.
-    // İnternet yoksa cache.
-    //
-    // dictionary.txt burada olduğundan:
-    // - Güncel sözlük varsa internetten alınır.
-    // - İnternet yoksa daha önce cache'lenmiş sürüm kullanılabilir.
     // Önce internet, hata olursa cache.
     // dictionary.txt APP_SHELL içinde olduğundan yalnızca üstteki
     // sabit dosya listesi ve cache kuralı üzerinden sunulur.

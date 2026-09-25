@@ -2,7 +2,7 @@
 const SIZE = 15;
 const CENTER = 7;
 // The only word source is dictionary.txt beside index.html.
-const DICT_URL = new URL("dictionary.txt", document.baseURI).toString();
+const DICTIONARY_URL = new URL("./dictionary.txt", document.baseURI).toString();
 
 // Türkçe Kelimelik / Scrabble harf puanları.
 const LETTER_POINTS = {
@@ -3116,167 +3116,8 @@ document
   );
 
 // ---------------------------------------------------------------------
-// ÖZEL KELİME LİSTESİ (Ekle / Sil)
-// Sözlüğe eklenen/sözlükten çıkarılan kelimeler tarayıcının
-// localStorage'ında saklanır ve sözlük her yüklendiğinde (dictionary.txt
-// veya yerel dosya) otomatik uygulanır.
-// ---------------------------------------------------------------------
-const CUSTOM_WORDS_KEY = "kelimelikYardimcisiOzelKelimeler_v1";
-
-function loadCustomWords(){
-  try{
-    const raw = localStorage.getItem(CUSTOM_WORDS_KEY);
-    const parsed = raw ? JSON.parse(raw) : null;
-    return {
-      added: new Set(Array.isArray(parsed?.added) ? parsed.added : []),
-      removed: new Set(Array.isArray(parsed?.removed) ? parsed.removed : [])
-    };
-  }catch(e){
-    console.warn("Özel kelime listesi okunamadı:", e);
-    return { added:new Set(), removed:new Set() };
-  }
-}
-
-const customWords = loadCustomWords();
-
-function saveCustomWords(){
-  try{
-    localStorage.setItem(
-      CUSTOM_WORDS_KEY,
-      JSON.stringify({
-        added: Array.from(customWords.added),
-        removed: Array.from(customWords.removed)
-      })
-    );
-  }catch(e){
-    console.warn("Özel kelime listesi kaydedilemedi:", e);
-  }
-}
-
-function applyCustomWords(){
-  for(const w of customWords.removed) dictionary.delete(w);
-  for(const w of customWords.added) dictionary.add(w);
-  dictionaryWords = Array.from(dictionary);
-}
-
-function makeCustomWordChip(word, kind){
-  const chip = document.createElement("span");
-  chip.className = "word-chip " + kind;
-
-  const label = document.createElement("span");
-  label.textContent = word;
-  chip.appendChild(label);
-
-  const x = document.createElement("button");
-  x.type = "button";
-  x.className = "word-chip-x";
-  x.title = "Geri al";
-  x.textContent = "✕";
-  x.addEventListener("click", () => {
-    if(kind === "added") customWords.added.delete(word);
-    else customWords.removed.delete(word);
-    saveCustomWords();
-    loadDictionary();
-  });
-  chip.appendChild(x);
-
-  return chip;
-}
-
-function renderCustomWordList(){
-  const el = document.getElementById("customWordList");
-  el.innerHTML = "";
-
-  const added = Array.from(customWords.added).sort();
-  const removed = Array.from(customWords.removed).sort();
-
-  if(added.length === 0 && removed.length === 0){
-    const empty = document.createElement("div");
-    empty.className = "custom-word-empty";
-    empty.textContent = "Henüz eklenen/silinen kelime yok.";
-    el.appendChild(empty);
-    return;
-  }
-
-  for(const w of added) el.appendChild(makeCustomWordChip(w, "added"));
-  for(const w of removed) el.appendChild(makeCustomWordChip(w, "removed"));
-}
-
-document
-  .getElementById("addWordBtn")
-  .addEventListener("click", () => {
-    const input = document.getElementById("customWordInput");
-    const w = normalizeWord(input.value);
-
-    if(!w || !isLetterWord(w)){
-      alert("Geçerli bir kelime yaz (yalnızca harf).");
-      return;
-    }
-
-    customWords.removed.delete(w);
-    customWords.added.add(w);
-    saveCustomWords();
-    input.value = "";
-    loadDictionary();
-  });
-
-document
-  .getElementById("removeWordBtn")
-  .addEventListener("click", () => {
-    const input = document.getElementById("customWordInput");
-    const w = normalizeWord(input.value);
-
-    if(!w || !isLetterWord(w)){
-      alert("Geçerli bir kelime yaz (yalnızca harf).");
-      return;
-    }
-
-    customWords.added.delete(w);
-    customWords.removed.add(w);
-    saveCustomWords();
-    input.value = "";
-    loadDictionary();
-  });
-
-// ---------------------------------------------------------------------
-// YEREL SÖZLÜK DOSYASI
 // SABİT PROJE SÖZLÜĞÜ
 // ---------------------------------------------------------------------
-
-document
-  .getElementById(
-    "dictFile"
-  )
-  .addEventListener(
-    "change",
-    async e => {
-
-      const file =
-        e.target.files[0];
-
-      if(!file){
-        return;
-      }
-
-      try{
-
-        const text =
-          await file.text();
-
-        setDictionary(
-          text,
-          "Yerel dosya"
-        );
-
-      }catch(err){
-
-        alert(
-          "Sözlük okunamadı: " +
-          err.message
-        );
-      }
-    }
-  );
 
 document
   .getElementById(
@@ -3320,10 +3161,6 @@ function setDictionary(
   dictionaryWords =
     Array.from(set);
 
-  applyCustomWords();
-
-  renderCustomWordList();
-
   statusEl.textContent =
     `Sözlük hazır: ${
       dictionary.size.toLocaleString("tr-TR")
@@ -3345,7 +3182,7 @@ async function loadDictionary(){
 
     const res =
       await fetch(
-        DICT_URL,
+        DICTIONARY_URL,
         {
           cache:"no-store"
         }
